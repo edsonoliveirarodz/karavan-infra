@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: karavan
+resources:
+- namespace.yaml
+#- pvc.yaml
+- secret.yaml
+- role.yaml
+- service-account.yaml
+- role-binding.yaml
+- deployment.yaml
+- service.yaml
+
+# Patch for Service with nodePort
+patches:
+- path: ./nodePort.yaml
+  target:
+    kind: Service
+    name: karavan
+
+# Replace secret from.env if required
+secretGenerator:
+- behavior: replace
+  envs:
+  - .env
+  name: karavan
+  options:
+    disableNameSuffixHash: true
+labels:
+- includeSelectors: true
+  pairs:
+    app: karavan
+    app.kubernetes.io/name: karavan
+    app.kubernetes.io/part-of: karavan
+    app.kubernetes.io/version: 4.10.2
